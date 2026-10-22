@@ -1,0 +1,56 @@
+name: Publish Boundiff v0.1.0
+
+# One-time path-triggered workflow. Subsequent ordinary pushes will not republish.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-v0.1.0.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-boundiff-v0.1.0
+  cancel-in-progress: false
+
+jobs:
+  verify-and-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify skill pack
+        run: python3 scripts/check_pack.py
+      - name: Run unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Create annotated version tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/tags/*:refs/tags/*'
+          if git rev-parse -q --verify 'refs/tags/v0.1.0' >/dev/null; then
+            echo 'v0.1.0 already exists; refusing to retag or overwrite.'
+            exit 1
+          fi
+          if gh release view v0.1.0 >/dev/null 2>&1; then
+            echo 'v0.1.0 GitHub Release already exists; refusing to overwrite.'
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a v0.1.0 -m 'Boundiff v0.1.0'
+          git push origin refs/tags/v0.1.0
+          gh release create v0.1.0 \
+            --verify-tag \
+            --title 'Boundiff v0.1.0' \
+            --notes-file docs/releases/v0.1.0.md \
+            --latest
