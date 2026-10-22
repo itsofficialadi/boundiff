@@ -11,6 +11,14 @@ spec.loader.exec_module(module)
 
 
 class EvalFixturesTests(unittest.TestCase):
+    def test_codex_approval_flag_precedes_exec(self):
+        argv = module.codex_args("codex", Path("/tmp/final.txt"), "test-model")
+        self.assertEqual(
+            argv[:4], ["codex", "--ask-for-approval", "never", "exec"]
+        )
+        self.assertIn("--sandbox", argv)
+        self.assertEqual(argv[-3:], ["--model", "test-model", "-"])
+
     def test_paired_fixtures_have_identical_base_commit(self):
         with tempfile.TemporaryDirectory() as tmp:
             for case in ("pagination", "review", "release"):
