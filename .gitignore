@@ -1,0 +1,17 @@
+# Local Python helper/test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# Editor and OS state
+.DS_Store
+.idea/
+.vscode/
+
+# Local test environments
+.venv/
+venv/
+
+# Archives built for distribution
+*.zip
