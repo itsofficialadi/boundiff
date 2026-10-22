@@ -42,3 +42,7 @@ The runner does not compute a winner. A human must inspect `events.jsonl`, `fina
 Record objective measures in the corresponding issue: number of unrelated changed lines, task outcome, evidence accuracy, state mutations, and overhead. Attach redacted transcripts and fixture SHA. Repeat the paired evaluation for additional attempts before any comparative claim. The baseline may still inherit user-level Codex instructions or global skills, so make sure that configuration is documented and equivalent for both. For a rigorous isolation study, run both with a disposable `CODEX_HOME` carrying the same credentials and settings but no extra skill collection.
 
 These trials are intended to begin collecting evidence, not to prove superiority in one run. See [evaluation methodology](../docs/evaluation.md).
+
+## Initial live evaluation results
+
+See [initial paired pilot scorecard](INITIAL_RESULTS.md). It reports limited results from six successful live sessions without claiming that a single paired trial establishes superiority. Raw traces remain private until reviewed and redacted.
