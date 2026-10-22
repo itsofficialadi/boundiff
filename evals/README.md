@@ -46,3 +46,5 @@ These trials are intended to begin collecting evidence, not to prove superiority
 ## Initial live evaluation results
 
 See [initial paired pilot scorecard](INITIAL_RESULTS.md). It reports limited results from six successful live sessions without claiming that a single paired trial establishes superiority. Raw traces remain private until reviewed and redacted.
+
+The [six-trial metadata audit](METADATA_AUDIT.md) records checked local execution metadata and the remaining full-trace evidence limitations.
