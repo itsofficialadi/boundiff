@@ -1,13 +1,11 @@
 name: Prune merged branch heads
 
-# Initial cleanup on merge; subsequent merged PRs are cleaned automatically.
+# Scoped cleanup on edits to this workflow; prevents duplicate PR-close/push jobs.
 on:
   push:
     branches: [main]
     paths:
       - .github/workflows/prune-merged-branches.yml
-  pull_request:
-    types: [closed]
 
 permissions:
   contents: write
@@ -15,7 +13,6 @@ permissions:
 
 jobs:
   prune:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-24.04
     steps:
       - name: Delete merged same-repository branch heads
@@ -31,6 +28,7 @@ jobs:
             release/evidence-and-v0.1.0-prep
             release/publish-v0.1.0
             maintenance/prune-merged-heads
+            maintenance/finalize-release-housekeeping
           )
           for branch in "${branches[@]}"; do
             if ! gh api "repos/${GH_REPO}/branches/${branch}" >/dev/null 2>&1; then
