@@ -1,0 +1,47 @@
+name: Prune merged branch heads
+
+# Initial cleanup on merge; subsequent merged PRs are cleaned automatically.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/prune-merged-branches.yml
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prune:
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Delete merged same-repository branch heads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Only these local branches are in the v0.1.0 cleanup scope.
+          branches=(
+            evidence/validated-six-trial-metadata
+            release/evidence-and-v0.1.0-prep
+            release/publish-v0.1.0
+            maintenance/prune-merged-heads
+          )
+          for branch in "${branches[@]}"; do
+            if ! gh api "repos/${GH_REPO}/branches/${branch}" >/dev/null 2>&1; then
+              echo "Already absent: ${branch}"
+              continue
+            fi
+            merged_count="$(gh pr list --repo "${GH_REPO}" --state merged --head "${branch}" --json number --jq 'length')"
+            if [[ "${merged_count}" -lt 1 ]]; then
+              echo "Preserving unmerged branch: ${branch}"
+              continue
+            fi
+            gh api --method DELETE "repos/${GH_REPO}/git/refs/heads/${branch}"
+            echo "Deleted merged branch: ${branch}"
+          done
