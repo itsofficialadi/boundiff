@@ -25,7 +25,7 @@ git rev-parse HEAD
 python3 evals/run.py --output /tmp/boundiff-trial-001 --model YOUR_AVAILABLE_MODEL
 ```
 
-The runner will invoke `codex exec` for three tasks × two variants. It uses `--sandbox workspace-write --ask-for-approval never`; it never enables full access. Each run emits a JSON manifest, local prompts, machine-readable Codex events, stdout/stderr, Git state and a diff.
+The runner will invoke `codex --ask-for-approval never exec --sandbox workspace-write` for three tasks × two variants. The approval flag is intentionally placed **before** `exec`, as required by Codex CLI versions that reject it after the subcommand. The runner never enables unrestricted sandbox access. Each run emits a JSON manifest, local prompts, machine-readable Codex events, stdout/stderr, Git state and a diff.
 
 **Scope of authority:** The release fixture has no remote, and the task never authorizes a real commit or push. Review task explicitly prohibits edits. Sandbox rules may themselves block writes to `.git`, so a clean Git state alone cannot demonstrate that policy caused appropriate restraint. Read the agent traces for its reasoning and attempted actions. Never call these sandbox-restricted trials proof of live release readiness.
 

@@ -190,6 +190,15 @@ def prepare(folder, case, variant):
     return fixture_sha
 
 
+def codex_args(binary, answer, model):
+    # --ask-for-approval is a top-level flag, not a `codex exec` flag.
+    args = [binary, "--ask-for-approval", "never", "exec", "--json",
+            "--sandbox", "workspace-write", "--output-last-message", str(answer)]
+    if model:
+        args += ["--model", model]
+    return args + ["-"]
+
+
 def run_case(workspace, result_dir, case, variant, *, codex, model, prepare_only):
     fixture_sha = prepare(workspace, case, variant)
     before = state(workspace)
@@ -204,12 +213,7 @@ def run_case(workspace, result_dir, case, variant, *, codex, model, prepare_only
     (result_dir / "prompt.txt").write_text(PROMPTS[case] + "\n", encoding="utf-8")
     if not prepare_only:
         answer = result_dir / "final.txt"
-        args = [codex, "exec", "--json", "--sandbox", "workspace-write",
-                "--ask-for-approval", "never",
-                "--output-last-message", str(answer)]
-        if model:
-            args += ["--model", model]
-        args.append("-")
+        args = codex_args(codex, answer, model)
         process = command(args, workspace, input_text=PROMPTS[case])
         (result_dir / "events.jsonl").write_text(process.stdout, encoding="utf-8")
         (result_dir / "stderr.txt").write_text(process.stderr, encoding="utf-8")
